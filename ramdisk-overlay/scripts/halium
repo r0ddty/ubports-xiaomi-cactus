@@ -417,23 +417,45 @@ mountroot() {
 	fi
 
 	tell_kmsg "checking filesystem integrity for the userdata partition"
-	# Mounting and umounting first, let the kernel handle the journal and
-	# orphaned inodes (faster than e2fsck). Then, just run e2fsck forcing -y.
-	# Also check the amount of time used by to check the filesystem.
 	fsck_start=$(date +%s)
-	mount -o errors=remount-ro $path /tmpmnt
-	umount /tmpmnt
-	e2fsck -y $path >/run/e2fsck.out 2>&1
+
+	data_fstype=$(blkid $path -o value -s TYPE)
+	case "$data_fstype" in
+		ext4)
+			# Mounting and umounting first, let the kernel handle the journal and
+			# orphaned inodes (faster than e2fsck). Then, just run e2fsck forcing -y.
+			# Also check the amount of time used by to check the filesystem.
+			mount -o errors=remount-ro $path /tmpmnt
+			umount /tmpmnt
+			e2fsck -y $path >/run/e2fsck.out 2>&1
+			;;
+		f2fs)
+			fsck.f2fs -a $path
+			;;
+		*)
+			tell_kmsg "unsupported filesystem, skipping check"
+			;;
+	esac
+
 	fsck_end=$(date +%s)
-	tell_kmsg "checking filesystem for userdata took (including e2fsck) $((fsck_end - fsck_start)) seconds"
+	tell_kmsg "checking filesystem for userdata took $((fsck_end - fsck_start)) seconds"
 
 	resize_userdata_if_needed ${path}
 
-	tell_kmsg "mounting $path"
+	case "$data_fstype" in
+		f2fs)
+			OPTIONS="reserve_root=32768,"
+			;;
+		ext4)
+			# FIXME: data=journal used on ext4 as a workaround for bug 1387214
+			OPTIONS="data=journal,"
+			;;
+		*)
+			# filesystem is not handled by us, do not add additional mount options
+			;;
+	esac
 
 	# Mount the data partition to a temporary mount point
-	# FIXME: data=journal used on ext4 as a workaround for bug 1387214
-	[ `blkid $path -o value -s TYPE` = "ext4" ] && OPTIONS="data=journal,"
 	mount -o discard,$OPTIONS $path /tmpmnt
 
 	# setup super partition if exists
