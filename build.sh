@@ -9,6 +9,7 @@ do
     case "$1" in
     (-b) BUILD_DIR="$(realpath "$2")"; shift;;
     (-o) OUT="$2"; shift;;
+    (-d) DEVICE="$2"; shift;;
     (-*) echo "$0: Error: unknown option $1" 1>&2; exit 1;;
     (*) OUT="$2"; break;;
     esac
@@ -34,7 +35,11 @@ SCRIPT="$(dirname "$(realpath "$0")")"/build
 mkdir -p "${TMP}/system"
 mkdir -p "${TMP}/partitions"
 
+if [ ! -z $DEVICE ]; then
+source "${HERE}/deviceinfo-${DEVICE}"
+else
 source "${HERE}/deviceinfo"
+fi
 
 case $deviceinfo_arch in
     "armhf") RAMDISK_ARCH="armhf";;

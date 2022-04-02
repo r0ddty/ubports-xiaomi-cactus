@@ -5,9 +5,21 @@ build:
   script:
     - apt update
     - apt install android-tools-mkbootimg bc bison build-essential ca-certificates cpio curl flex git kmod libssl-dev libtinfo5 python2 sudo unzip wget xz-utils -y --no-install-recommends
-    - ln -sf python2.7 /usr/bin/python
+    - ln -sf /usr/bin/python2.7 /usr/bin/python
     - wget https://raw.githubusercontent.com/LineageOS/android_system_core/lineage-17.1/mkbootimg/mkbootimg.py -O /usr/bin/mkbootimg
     - ./build.sh
+  artifacts:
+    paths:
+      - out/*
+
+build-dandelion:
+  stage: build
+  script:
+    - apt update
+    - apt install android-tools-mkbootimg bc bison build-essential ca-certificates cpio curl flex git kmod libssl-dev libtinfo5 python2 sudo unzip wget xz-utils -y --no-install-recommends
+    - ln -sf /usr/bin/python2.7 /usr/bin/python
+    - wget https://raw.githubusercontent.com/LineageOS/android_system_core/lineage-17.1/mkbootimg/mkbootimg.py -O /usr/bin/mkbootimg
+    - ./build.sh -d dandelion
   artifacts:
     paths:
       - out/*
@@ -44,3 +56,19 @@ devel-flashable:
       - out/dtbo.img
       - out/recovery.img
       - out/system.img
+
+devel-flashable-dandelion:
+  stage: deploy
+  script:
+    - apt update
+    - apt install -y img2simg sudo jq wget xz-utils
+    - DEVICE=$(source deviceinfo-dandelion && echo $deviceinfo_codename)
+    - ./build/prepare-fake-ota.sh out/device_$DEVICE.tar.xz ota
+    - ./build/system-image-from-ota.sh ota/ubuntu_command out
+   artifacts:
+     paths:
+       - out/boot.img
+       - out/dtbo.img
+       - out/recovery.img
+       - out/system.img
+
