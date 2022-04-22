@@ -36,6 +36,7 @@ mkdir -p "${TMP}/system"
 mkdir -p "${TMP}/partitions"
 
 if [ ! -z $DEVICE ]; then
+export DEVICE
 source "${HERE}/deviceinfo-${DEVICE}"
 else
 source "${HERE}/deviceinfo"

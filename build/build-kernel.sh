@@ -4,7 +4,12 @@ set -ex
 TMPDOWN=$1
 INSTALL_MOD_PATH=$2
 HERE=$(pwd)
+
+if [ ! -z $DEVICE ]; then
+source "${HERE}/deviceinfo-${DEVICE}"
+else
 source "${HERE}/deviceinfo"
+fi
 
 KERNEL_DIR="${TMPDOWN}/$(basename "${deviceinfo_kernel_source}")"
 KERNEL_DIR="${KERNEL_DIR%.git}"

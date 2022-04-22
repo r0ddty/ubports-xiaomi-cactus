@@ -6,7 +6,13 @@ KERNEL_OBJ=$(realpath $2)
 OUT=$(realpath $3)
 
 HERE=$(pwd)
+
+if [ ! -z $DEVICE ]; then
+source "${HERE}/deviceinfo-${DEVICE}"
+else
 source "${HERE}/deviceinfo"
+fi
+
 
 case "$deviceinfo_arch" in
     aarch64*) ARCH="arm64" ;;
