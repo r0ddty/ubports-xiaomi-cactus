@@ -13,7 +13,11 @@ fi
 
 KERNEL_DIR="${TMPDOWN}/$(basename "${deviceinfo_kernel_source}")"
 KERNEL_DIR="${KERNEL_DIR%.git}"
+if [ ! -z $DEVICE ]; then
+OUT="${TMPDOWN}/KERNEL_OBJ_${DEVICE}"
+else
 OUT="${TMPDOWN}/KERNEL_OBJ"
+fi
 
 mkdir -p "$OUT"
 

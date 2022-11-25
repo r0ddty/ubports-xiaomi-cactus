@@ -2,7 +2,7 @@
 set -ex
 
 TMPDOWN=$(realpath $1)
-KERNEL_OBJ=$(realpath $2)
+KERNEL_OUT=$(realpath $2)
 RAMDISK=$(realpath $3)
 OUT=$(realpath $4)
 
@@ -43,7 +43,7 @@ if [ -d "$HERE/ramdisk-overlay" ]; then
 fi
 
 if [ -n "$deviceinfo_kernel_image_name" ]; then
-    KERNEL="$KERNEL_OBJ/arch/$ARCH/boot/$deviceinfo_kernel_image_name"
+    KERNEL="$KERNEL_OUT/arch/$ARCH/boot/$deviceinfo_kernel_image_name"
 else
     # Autodetect kernel image name for boot.img
     if [ "$deviceinfo_bootimg_header_version" -eq 2 ]; then
@@ -53,8 +53,8 @@ else
     fi
 
     for image in $IMAGE_LIST; do
-        if [ -e "$KERNEL_OBJ/arch/$ARCH/boot/$image" ]; then
-            KERNEL="$KERNEL_OBJ/arch/$ARCH/boot/$image"
+        if [ -e "$KERNEL_OUT/arch/$ARCH/boot/$image" ]; then
+            KERNEL="$KERNEL_OUT/arch/$ARCH/boot/$image"
             break
         fi
     done
@@ -63,8 +63,8 @@ fi
 if [ -n "$deviceinfo_bootimg_prebuilt_dtb" ]; then
     DTB="$HERE/$deviceinfo_bootimg_prebuilt_dtb"
 elif [ -n "$deviceinfo_dtb" ]; then
-    DTB="$KERNEL_OBJ/../$deviceinfo_codename.dtb"
-    PREFIX=$KERNEL_OBJ/arch/$ARCH/boot/dts/
+    DTB="$KERNEL_OUT/../$deviceinfo_codename.dtb"
+    PREFIX=$KERNEL_OUT/arch/$ARCH/boot/dts/
     DTBS="$PREFIX${deviceinfo_dtb// / $PREFIX}"
     cat $DTBS > $DTB
 fi

@@ -29,6 +29,12 @@ else
     mkdir -p "$TMPDOWN"
 fi
 
+if [ ! -z $DEVICE ]; then
+KERNEL_OBJ="${TMPDOWN}/KERNEL_OBJ_${DEVICE}"
+else
+KERNEL_OBJ="${TMPDOWN}/KERNEL_OBJ"
+fi
+
 HERE=$(pwd)
 SCRIPT="$(dirname "$(realpath "$0")")"/build
 
@@ -65,7 +71,7 @@ cd "$TMPDOWN"
 
     [ -f halium-boot-ramdisk.img ] || curl --location --output halium-boot-ramdisk.img \
         "https://github.com/NotKit/initramfs-tools-halium/releases/download/dynparts/initrd.img-touch-${RAMDISK_ARCH}"
-    
+
     if ([ -n "$deviceinfo_kernel_apply_overlay" ] && $deviceinfo_kernel_apply_overlay) || [ -n "$deviceinfo_dtbo" ]; then
         [ -d libufdt ] || git clone https://android.googlesource.com/platform/system/libufdt -b pie-gsi --depth 1
         [ -d dtc ] || git clone https://android.googlesource.com/platform/external/dtc -b pie-gsi --depth 1
@@ -96,10 +102,10 @@ fi
 if [ -n "$deviceinfo_prebuilt_dtbo" ]; then
     cp "$deviceinfo_prebuilt_dtbo" "${TMP}/partitions/dtbo.img"
 elif [ -n "$deviceinfo_dtbo" ]; then
-    "$SCRIPT/make-dtboimage.sh" "${TMPDOWN}" "${TMPDOWN}/KERNEL_OBJ" "${TMP}/partitions/dtbo.img"
+    "$SCRIPT/make-dtboimage.sh" "${TMPDOWN}" "${KERNEL_OBJ}" "${TMP}/partitions/dtbo.img"
 fi
 
-"$SCRIPT/make-bootimage.sh" "${TMPDOWN}" "${TMPDOWN}/KERNEL_OBJ" "${TMPDOWN}/halium-boot-ramdisk.img" "${TMP}/partitions/boot.img"
+"$SCRIPT/make-bootimage.sh" "${TMPDOWN}" "${KERNEL_OBJ}" "${TMPDOWN}/halium-boot-ramdisk.img" "${TMP}/partitions/boot.img"
 
 cp -av overlay/* "${TMP}/"
 "$SCRIPT/build-tarball-mainline.sh" "${deviceinfo_codename}" "${OUT}" "${TMP}"
