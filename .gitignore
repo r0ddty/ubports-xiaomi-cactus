@@ -1,3 +1,4 @@
 # ignore build folders
 out
 ota
+ramdisk-recovery
