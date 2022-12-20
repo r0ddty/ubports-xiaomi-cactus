@@ -75,6 +75,12 @@ elif [ -n "$deviceinfo_dtbo" ]; then
     DTBO="$(dirname "$OUT")/dtbo.img"
 fi
 
+if [ -n "$deviceinfo_recovery_dtbo" ]; then
+    RECOVERY_DTBO="$HERE/$deviceinfo_recovery_dtbo"
+else
+    RECOVERY_DTBO="$DTBO"
+fi
+
 if [ "$deviceinfo_bootimg_header_version" -eq 2 ]; then
     mkbootimg --kernel "$KERNEL" --ramdisk "$RAMDISK" --dtb "$DTB" --base $deviceinfo_flash_offset_base --kernel_offset $deviceinfo_flash_offset_kernel --ramdisk_offset $deviceinfo_flash_offset_ramdisk --second_offset $deviceinfo_flash_offset_second --tags_offset $deviceinfo_flash_offset_tags --dtb_offset $deviceinfo_flash_offset_dtb --pagesize $deviceinfo_flash_pagesize --cmdline "$deviceinfo_kernel_cmdline" -o "$OUT" --header_version $deviceinfo_bootimg_header_version --os_version $deviceinfo_bootimg_os_version --os_patch_level $deviceinfo_bootimg_os_patch_level
 else
@@ -89,8 +95,8 @@ fi
         EXTRA_ARGS+=" --header_version $deviceinfo_bootimg_header_version --dtb $DTB --dtb_offset $deviceinfo_flash_offset_dtb"
     fi
 
-    if [ -n "$DTBO" ]; then
-        EXTRA_ARGS+=" --recovery_dtbo $DTBO"
+    if [ -n "$RECOVERY_DTBO" ]; then
+        EXTRA_ARGS+=" --recovery_dtbo $RECOVERY_DTBO"
     fi
 
 if [ -n "$deviceinfo_has_recovery_partition" ] && $deviceinfo_has_recovery_partition; then
