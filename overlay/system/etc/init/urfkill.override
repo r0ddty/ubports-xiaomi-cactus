@@ -14,7 +14,7 @@ script
 
     # enable Wi-Fi adapter in client mode
     while [ ! -e /dev/wmtWifi ]; do sleep 0.2; done
-    echo 1 > /dev/wmtWifi
+    echo P > /dev/wmtWifi
 
     exec /usr/lib/arm-linux-gnueabihf/urfkill/urfkilld
 end script
