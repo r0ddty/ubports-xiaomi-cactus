@@ -110,7 +110,6 @@ if [ -n "$deviceinfo_recovery_partition_size" ]; then
         python2 "$TMPDOWN/avb/avbtool" add_hash_footer --image "$RECOVERY" --partition_name recovery --partition_size $deviceinfo_recovery_partition_size
 fi
 
-DTBO="$(dirname "$OUT")/dtbo.img"
 if [ -n "$deviceinfo_dtbo_partition_size" ] && [ -f "$DTBO" ]; then
     python2 "$TMPDOWN/avb/avbtool" add_hash_footer --image "$DTBO" --partition_name dtbo --partition_size $deviceinfo_dtbo_partition_size
 fi
