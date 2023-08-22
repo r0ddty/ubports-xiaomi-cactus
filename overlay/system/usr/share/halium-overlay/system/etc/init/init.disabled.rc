@@ -3,12 +3,6 @@
 # These services are disabled due to them being unnecessary critical process
 # and crash loop.
 
-service adsprpcd /vendor/bin/adsprpcd
-   class main
-   user media
-   group media
-   disabled
-
 service lmkd lmkd_HYBRIS_DISABLED
     disabled
     oneshot
