@@ -1,5 +1,5 @@
-﻿deviceinfo_name="Redmi"
-deviceinfo_manufacturer="Note 11"
+﻿deviceinfo_name="Redmi Note 11"
+deviceinfo_manufacturer="Redmi"
 deviceinfo_codename="spes"
 deviceinfo_arch="aarch64"
 deviceinfo_kernel_source="https://github.com/halt-spesn/spes_halium"
