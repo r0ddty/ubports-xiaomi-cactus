@@ -2,7 +2,7 @@
 deviceinfo_manufacturer="Redmi"
 deviceinfo_codename="spes"
 deviceinfo_arch="aarch64"
-deviceinfo_kernel_source="https://github.com/halt-spesn/spes_halium"
+deviceinfo_kernel_source="https://github.com/halium-spes/halium-kernel"
 deviceinfo_kernel_source_branch="main"
 deviceinfo_kernel_defconfig="halium_defconfig"
 deviceinfo_kernel_cmdline="console=tty0 systempart=/dev/mapper/system selinux=0 androidboot.selinux=disabled"
