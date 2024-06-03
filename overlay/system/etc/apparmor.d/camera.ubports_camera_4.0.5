@@ -1,0 +1,45 @@
+#include <tunables/global>
+
+profile camera.ubports_camera_4.0.5 {
+    #include <abstractions/base>
+
+    /proc/*/mountinfo r,
+    /usr/local/lib/python3.8/dist-packages/ r,
+    /usr/local/lib/python3.8/dist-packages/ r,
+    /usr/share/click/preinstalled/camera.ubports/4.0.5/ r,
+    /usr/share/click/preinstalled/camera.ubports/4.0.5/ r,
+    /usr/share/click/preinstalled/camera.ubports/4.0.5/lomiri-camera-app rix,
+
+    /sys/kernel/tracing/trace_marker rw,
+    /dev/properties/property_info rw,
+    /dev/properties/properties_serial rw,
+    /dev/pmsg0 rw,
+    /dev/shm/lttng-ust-wait-8 r,
+    /dev/shm/lttng-ust-wait-8-32011 r,
+    /run/user/32011/mir_socket rw,
+
+    /etc/glvnd/egl_vendor.d/ r,
+    /etc/glvnd/egl_vendor.d/ r,
+    /usr/share/glvnd/egl_vendor.d/ r,
+    /usr/share/glvnd/egl_vendor.d/ r,
+
+    /android/vendor/lib64/* rm,
+    /android/system/lib64/* rm,
+    /android/vendor/lib64/egl/* rm,
+    /android/vendor/lib64/egl/ rm,
+    /android/vendor/lib64/egl/** rm,
+    /android/apex/com.android.runtime/lib64/bionic/* rm,
+
+    /dev/socket/property_service wr,
+    /dev/properties/u:object_r:debug_prop:s0 r,
+    /dev/properties/u:object_r:exported2_default_prop:s0 r,
+    /dev/properties/u:object_r:log_tag_prop:s0 r,
+    /dev/properties/u:object_r:logd_prop:s0 r,
+    /dev/properties/u:object_r:exported_default_prop:s0 r,
+    /dev/properties/u:object_r:hwservicemanager_prop:s0 r,
+    /dev/socket/logdw w,
+
+    /tmp/.X11-unix/X0 w,
+
+    # Additional rules and permissions
+}
