@@ -2,27 +2,26 @@
 # the port's .gitlab-ci.yml with just:
 # ---
 # include:
-#  - https://gitlab.com/ubports/porting/community-ports/halium-generic-adaptation-build-tools/-/raw/halium-11/gsi-port-ci.yml
+#  - https://gitlab.com/ubports/porting/community-ports/halium-generic-adaptation-build-tools/-/raw/main/gsi-port-ci.yml
 # ---
 # Porters may also set the variables below to alter the CI's behavior, or specify a new jobs
 # to do custom things (e.g. Volla Phone 22's bootloader-flashable super.img).
 
 variables:
   # Branch of https://gitlab.com/ubports/porting/community-ports/halium-generic-adaptation-build-tools
-  ADAPTATION_TOOLS_BRANCH: halium-11
+  ADAPTATION_TOOLS_BRANCH: main
 
-image: ubuntu:20.04
+image: ubuntu:22.04
 
 build:
   stage: build
-  tags: [ "ubports" ]
   script:
     - apt update
     - >-
       apt install -y --no-install-recommends
-      android-tools-mkbootimg bc bison build-essential ca-certificates cpio curl
-      fakeroot flex git kmod libssl-dev libtinfo5 python-is-python2 sudo unzip wget xz-utils
-    - wget https://raw.githubusercontent.com/LineageOS/android_system_tools_mkbootimg/lineage-19.1/mkbootimg.py -O /usr/bin/mkbootimg
+      bc bison build-essential ca-certificates cpio curl
+      fakeroot flex git kmod libssl-dev libtinfo5 lz4 python2 python3 sudo unzip wget xz-utils
+    - ln -s python2 /usr/bin/python
     - >-
       git clone -b $ADAPTATION_TOOLS_BRANCH
       https://gitlab.com/ubports/porting/community-ports/halium-generic-adaptation-build-tools.git
@@ -48,7 +47,10 @@ flashable:
   artifacts:
     paths:
       - out/boot.img
+      - out/init_boot.img
+      - out/vendor_boot.img
       - out/system.img
+      - out/dtbo.img
   when: manual
 
 devel-flashable:
@@ -70,4 +72,7 @@ devel-flashable:
   artifacts:
     paths:
       - out/boot.img
+      - out/init_boot.img
+      - out/vendor_boot.img
       - out/ubuntu.img
+      - out/dtbo.img

@@ -70,7 +70,7 @@ install_keyring() {
     fi
 
     # Unpacking
-    TMPDIR=$(mktemp -dt -p /tmp/system-image/ tmp.XXXXXXXXXX)
+    TMPDIR=$(mktemp -d -p /tmp/system-image/ tmp.XXXXXXXXXX)
     cd $TMPDIR
     xzcat $1 | tar --numeric-owner -xf -
     if [ ! -e keyring.json ] || [ ! -e keyring.gpg ]; then
@@ -182,7 +182,9 @@ do
                 system)
                     FULL_IMAGE=1
                     rm -f "$OUT/rootfs.img"
-                    truncate -s "${deviceinfo_system_partition_size:-3000M}" $OUT/rootfs.img
+                    # shellcheck disable=SC2154
+                    [ "$deviceinfo_halium_version" -eq 9 ] && deviceinfo_system_partition_size="2800M"
+                    truncate -s "${deviceinfo_system_partition_size:-3000M}" "$OUT/rootfs.img"
                     mkfs.ext4 -F "$OUT/rootfs.img"
                 ;;
 
@@ -207,13 +209,13 @@ do
             case "$2" in
                 system)
                     mkdir -p "$SYSTEM_MOUNTPOINT"
-                    LOOPDEV=$(sudo losetup -f)
+                    LOOPDEV=$(sudo losetup -f) || true
 
-                    if [ ! -e "$LOOPDEV" ]; then
+                    if [ ! -z "$LOOPDEV" ] && [ ! -e "$LOOPDEV" ]; then
                         sudo mknod "$LOOPDEV" b 7 $(echo "$LOOPDEV" | grep -Eo '[0-9]+$')
                         sudo losetup "$LOOPDEV" "$OUT/rootfs.img"
                         sudo mount "$LOOPDEV" "$SYSTEM_MOUNTPOINT/"
-                    else
+                    elif [ ! -z "$LOOPDEV" ]; then
                         sudo mount -o loop "$OUT/rootfs.img" "$SYSTEM_MOUNTPOINT/"
                     fi
                 ;;
@@ -227,8 +229,13 @@ do
         unmount)
             case "$2" in
                 system)
-                    sudo umount "$SYSTEM_MOUNTPOINT"
-                    rmdir "$SYSTEM_MOUNTPOINT"
+                    if [ ! -z "$LOOPDEV" ]; then
+                        sudo umount "$SYSTEM_MOUNTPOINT"
+                        rmdir "$SYSTEM_MOUNTPOINT"
+                    else
+                        mke2fs -t ext4 -O \^metadata_csum "$OUT/rootfs.img" 3000000 -d "$SYSTEM_MOUNTPOINT"
+                        rm -rf "$SYSTEM_MOUNTPOINT"
+                    fi
                     # Create fastboot flashable image
                     img2simg "$OUT/rootfs.img" "$OUT/system.img"
                 ;;
@@ -285,6 +292,10 @@ do
             # extract partitions/blobs that might fill up cache,
             # this way we ensure we got space for the partitions/blobs
             # rm -f recovery/$2
+        ;;
+
+        "#")
+            # We are processing a comment in the script, ignore it
         ;;
 
         *)
