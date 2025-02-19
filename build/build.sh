@@ -1,6 +1,5 @@
 #!/bin/bash
 set -xe
-shopt -s extglob
 
 BUILD_DIR=
 OUT=
@@ -51,9 +50,8 @@ cd "$TMPDOWN"
     [ -d aarch64-linux-android-4.9 ] || git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/aarch64/aarch64-linux-android-4.9 -b pie-gsi --depth 1
     GCC_PATH="$TMPDOWN/aarch64-linux-android-4.9"
     if $deviceinfo_kernel_clang_compile; then
-        [ -d linux-x86 ] || git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android11-gsi --depth 1
-        CLANG_PATH="$TMPDOWN/linux-x86/clang-r383902"
-        rm -rf "$TMPDOWN/linux-x86/.git" "$TMPDOWN/linux-x86/"!(clang-r383902)
+        [ -d linux-x86 ] || git clone https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 -b android10-gsi --depth 1
+        CLANG_PATH="$TMPDOWN/linux-x86/clang-r353983c"
     fi
     if [ "$deviceinfo_arch" == "aarch64" ]; then
         [ -d arm-linux-androideabi-4.9 ] || git clone https://android.googlesource.com/platform/prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.9 -b pie-gsi --depth 1
@@ -63,8 +61,14 @@ cd "$TMPDOWN"
     KERNEL_DIR="${KERNEL_DIR%.*}"
     [ -d "$KERNEL_DIR" ] || git clone "$deviceinfo_kernel_source" -b $deviceinfo_kernel_source_branch --depth 1 --recursive
 
-    [ -f halium-boot-ramdisk.img ] || curl --location --output halium-boot-ramdisk.img \
-        "https://github.com/Halium/initramfs-tools-halium/releases/download/dynparts/initrd.img-touch-${RAMDISK_ARCH}"
+    if [ ! -f halium-boot-ramdisk.img ]; then
+        if [[ "$deviceinfo_kernel_cmdline" == *"systempart=/dev/mapper"* ]]; then
+            RAMDISK_URL="https://github.com/halium/initramfs-tools-halium/releases/download/dynparts/initrd.img-touch-${RAMDISK_ARCH}"
+        else
+            RAMDISK_URL="https://github.com/halium/initramfs-tools-halium/releases/download/continuous/initrd.img-touch-${RAMDISK_ARCH}"
+        fi
+        curl --location --output halium-boot-ramdisk.img "$RAMDISK_URL"
+    fi
 
     if ([ -n "$deviceinfo_kernel_apply_overlay" ] && $deviceinfo_kernel_apply_overlay) || [ -n "$deviceinfo_dtbo" ]; then
         [ -d libufdt ] || git clone https://android.googlesource.com/platform/system/libufdt -b pie-gsi --depth 1

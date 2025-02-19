@@ -11,6 +11,7 @@ KERNEL_DIR="${KERNEL_DIR%.git}"
 OUT="${TMPDOWN}/KERNEL_OBJ"
 
 mkdir -p "$OUT"
+mkdir -p "$INSTALL_MOD_PATH/usr"
 
 case "$deviceinfo_arch" in
     aarch64*) ARCH="arm64" ;;
@@ -37,7 +38,7 @@ make O="$OUT" $MAKEOPTS $deviceinfo_kernel_defconfig
 make O="$OUT" $MAKEOPTS -j$(nproc --all)
 if [ "$deviceinfo_kernel_disable_modules" != "true" ]
 then
-    make O="$OUT" $MAKEOPTS INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH="$INSTALL_MOD_PATH" modules_install
+    make O="$OUT" $MAKEOPTS INSTALL_MOD_STRIP=1 INSTALL_MOD_PATH="$INSTALL_MOD_PATH/usr" modules_install
 fi
 ls "$OUT/arch/$ARCH/boot/"*Image*
 
@@ -52,5 +53,5 @@ fi
 if [ -n "$deviceinfo_use_overlaystore" ]; then
     # Config this directory in the overlay store to override (i.e. bind-mount)
     # the whole directory. Rootfs won't ship any device-specific kernel module.
-    touch "${INSTALL_MOD_PATH}/lib/modules/.halium-override-dir"
+    touch "${INSTALL_MOD_PATH}/usr/lib/modules/.halium-override-dir"
 fi

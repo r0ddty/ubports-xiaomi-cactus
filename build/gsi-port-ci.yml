@@ -15,6 +15,7 @@ image: ubuntu:20.04
 
 build:
   stage: build
+  tags: [ "ubports" ]
   script:
     - apt update
     - >-
@@ -52,6 +53,7 @@ flashable:
 
 devel-flashable:
   stage: deploy
+  allow_failure: true
   needs: [ "build" ]
   script:
     - apt update
